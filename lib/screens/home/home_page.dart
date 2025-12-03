@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'dart:math';
 import '../../models/user.dart';
 import '../../models/activity.dart';
 import '../../services/location_service.dart';
 import '../widgets/activity_card.dart';
 import '../activity/create_activity_page.dart';
+import '../auth/auth_page.dart';
 
 class HomePage extends StatefulWidget {
   final User user;
@@ -18,6 +20,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final LocationService _locationService = LocationService();
+  final _auth = firebase_auth.FirebaseAuth.instance;
   Position? _currentPosition;
   String? _currentCity;
   bool _isLoading = true;
@@ -148,6 +151,120 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _handleSignOut() async {
+    final shouldSignOut = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldSignOut == true) {
+      await _auth.signOut();
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AuthPage()),
+          (route) => false,
+        );
+      }
+    }
+  }
+
+  void _showProfileMenu() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: Theme.of(context).primaryColor,
+              child: Text(
+                widget.user.name.isNotEmpty 
+                    ? widget.user.name[0].toUpperCase() 
+                    : 'U',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.user.name,
+                    style: const TextStyle(fontSize: 18),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    widget.user.email,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.normal,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Edit Profile'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Profile editing coming soon!')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Settings coming soon!')),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('Sign Out', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _handleSignOut();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,31 +330,27 @@ class _HomePageState extends State<HomePage> {
                 }
               },
             ),
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Profile'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Name: ${widget.user.name}'),
-                      const SizedBox(height: 8),
-                      Text('Email: ${widget.user.email}'),
-                    ],
+          // User Profile Avatar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            child: InkWell(
+              onTap: _showProfileMenu,
+              borderRadius: BorderRadius.circular(20),
+              child: CircleAvatar(
+                radius: 20,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Text(
+                  widget.user.name.isNotEmpty 
+                      ? widget.user.name[0].toUpperCase() 
+                      : 'U',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Close'),
-                    ),
-                  ],
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ],
       ),

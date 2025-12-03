@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "464681843290",
+    "project_id": "fabric-1320d",
+    "storage_bucket": "fabric-1320d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464681843290:android:a9d423dc776b830f583663",
+        "android_client_info": {
+          "package_name": "com.example.fabric"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464681843290-gk1ohct3oi6go55jgm0s6v5foconll10.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdp7HDDKP4kjabeyqTQG0ErOFSK6yLGIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464681843290-gk1ohct3oi6go55jgm0s6v5foconll10.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
